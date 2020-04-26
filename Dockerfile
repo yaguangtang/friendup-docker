@@ -23,6 +23,7 @@ RUN cd /friendup &&\
 
 #friendchat dependencies 
 RUN apt-get update && apt-get install -y libssl1.0-dev && apt-get install -y npm && npm install -g n && n stable
+RUN mkdir -p /friendup/build/services/{Presence,FriendChat} ; mkdir -p /friendup/build/resources/webclient/apps/FriendChat && cd /friendup/build/services && git clone --depth=1 https://github.com/FriendSoftwareLabs/presence.git ./Presence && git clone --depth=1 https://github.com/FriendSoftwareLabs/friendchat ./FriendChat && cd Presence && npm install && cd /friendup/build/services/FriendChat && npm install && cp -a /friendup/build/services/FriendChat/client/* /friendup/build/resources/webclient/apps/FriendChat/
 
 # Set the entrypoint for the container
 ENTRYPOINT ["/entrypoint.sh"]
