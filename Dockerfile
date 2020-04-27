@@ -1,4 +1,4 @@
-# Download Ubuntu Image
+#Download Download Ubuntu Image
 FROM ubuntu:18.04
 # Set the Image Maintainer
 LABEL maintainer="Aperture Development <webmaster@Aperture-Development.de>"
@@ -10,7 +10,7 @@ RUN apt-get update &&\
 # Check for Repository changes and invalidate the docker cache when there was one
 ADD https://api.github.com/repos/FriendUPCloud/friendup/git/refs/heads/master friendup_version.json
 ADD https://api.github.com/repos/Aperture-Development/friendup-docker/git/refs/heads/master friendup_docker_version.json
-RUN mkdir /friendup && git clone https://github.com/FriendUPCloud/friendup /friendup
+RUN mkdir /friendup && git clone --depth=1 https://github.com/FriendUPCloud/friendup /friendup
 # Copy our Entrypoint into the container and make it executable
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
@@ -21,9 +21,9 @@ RUN cd /friendup &&\
     make setup &&\
     make compile install
 
-#friendchat dependencies 
+#friendchat dependencies
 RUN apt-get update && apt-get install -y libssl1.0-dev && apt-get install -y npm && npm install -g n && n stable
-RUN mkdir -p /friendup/build/services/{Presence,FriendChat} ; mkdir -p /friendup/build/resources/webclient/apps/FriendChat && cd /friendup/build/services && git clone --depth=1 https://github.com/FriendSoftwareLabs/presence.git ./Presence && git clone --depth=1 https://github.com/FriendSoftwareLabs/friendchat ./FriendChat && cd Presence && npm install && cd /friendup/build/services/FriendChat && npm install && cp -a /friendup/build/services/FriendChat/client/* /friendup/build/resources/webclient/apps/FriendChat/
+RUN mkdir -p /friendup/build/services/{Presence,FriendChat} ; mkdir -p /friendup/build/resources/webclient/apps/FriendChat && cd /friendup/build/services && git clone --depth=1 https://github.com/FriendSoftwareLabs/presence.git ./Presence && git clone --depth=1 https://github.com/FriendSoftwareLabs/friendchat ./FriendChat && cd Presence && npm install && cd /friendup/build/services/FriendChat; mv server/* .  && npm install && cp -a /friendup/build/services/FriendChat/client/* /friendup/build/resources/webclient/apps/FriendChat/
 
 # Set the entrypoint for the container
 ENTRYPOINT ["/entrypoint.sh"]

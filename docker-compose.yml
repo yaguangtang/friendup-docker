@@ -6,11 +6,11 @@
 version: '3'
 services:
   # Friendup MariaDB Database
-  friendup-db:
+  mariadb:
     # Use MariaDB 10.4
     image: mariadb:10.4
     # Set the container name
-    container_name: friendup-db
+    container_name: mariadb
     # Set the enviroment variables file
     env_file:
     - .env

@@ -6,19 +6,25 @@ until [ "$RESULT" == "mysqld is alive" ]
 do
     echo "[ENTRY] MariaDB didn't finish starting yet"
     sleep 10s
-    RESULT=$(mysqladmin ping -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -h friendup-db --protocol=tcp)
+    RESULT=$(mysqladmin ping -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -h mariadb --protocol=tcp)
 done
 
 # Check if Database Exists, if not create it
-RESULT=$(echo $(mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -hfriendup-db --protocol=tcp -D"$MYSQL_DATABASE" -Bse 'SHOW TABLES' -D"$MYSQL_DATABASE" | wc -l))
+RESULT=$(echo $(mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -hmariadb --protocol=tcp -D"$MYSQL_DATABASE" -Bse 'SHOW TABLES' -D"$MYSQL_DATABASE" | wc -l))
 if [ "$RESULT" == "0" ]; then
     echo '[ENTRY] Creating Database'
-    mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -D"$MYSQL_DATABASE" -hfriendup-db --protocol=tcp < /friendup/db/FriendCoreDatabase.sql
+    mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -D"$MYSQL_DATABASE" -hmariadb --protocol=tcp < /friendup/db/FriendCoreDatabase.sql
 fi
 
 # Check if the config FIle already exists, if not create it
 if [ -f '/friendup/build/cfg/cfg.ini' ]; then
     echo '[ENTRY] Configuration found, starting FriendCore'
+    if [ -f '/friendup/build/services/Presence/presence.js' ];then
+      cd /friendup/build/services/Presence/ ; nohup node presence.js &
+    fi
+    if [ -f '/friendup/build/services/FriendChat/hello.js' ];then
+    cd /friendup/build/services/FriendChat/ ; nohup node hello.js &
+    fi
     cd /friendup/build/
     /friendup/build/FriendCore
 else
@@ -28,7 +34,7 @@ else
     else
         touch /friendup/build/cfg/cfg.ini
         echo '[DatabaseUser]' >> /friendup/build/cfg/cfg.ini
-        echo 'host=friendup-db' >> /friendup/build/cfg/cfg.ini
+        echo 'host=mariadb' >> /friendup/build/cfg/cfg.ini
         echo "login=$MYSQL_USER" >> /friendup/build/cfg/cfg.ini
         echo "password=$MYSQL_PASSWORD" >> /friendup/build/cfg/cfg.ini
         echo "dbname=$MYSQL_DATABASE" >> /friendup/build/cfg/cfg.ini
